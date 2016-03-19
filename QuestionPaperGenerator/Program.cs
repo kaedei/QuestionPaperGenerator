@@ -83,7 +83,7 @@ namespace QuestionPaperGenerator
 					Answer = row.Cells[0].ToString(),
 					Id = row.Cells[1].ToString(),
 					Question = row.Cells[2].ToString(),
-					Options = Enumerable.Range(3, row.Cells.Count).Select(columnIndex => row.Cells[columnIndex].ToString()).ToList()
+					Options = Enumerable.Range(3, row.Cells.Count - 3).Select(columnIndex => row.Cells[columnIndex].ToString()).ToList()
 				};
 				questions.Add(questionItem);
 			}
