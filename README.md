@@ -1,0 +1,2 @@
+# QuestionPaperGenerator
+一个简单的选择题试卷生成程序。从Excel文档中读取试题，生成指定数量的xlsx格式试卷，每一份试卷题目不同。
