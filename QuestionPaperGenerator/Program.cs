@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
@@ -17,15 +14,16 @@ namespace QuestionPaperGenerator
 			Console.WriteLine("Opening workbook...");
 			var questions = ParseQuestionItems();
 			Console.WriteLine("Generating papers...");
-			GenerateRandomPapers(questions);
+			GenerateRandomPapers(questions, 25);
 		}
 
-		private static void GenerateRandomPapers(List<QuestionItem> questions, int paperCount = 60, string outputDirectory = "Papers")
+		private static void GenerateRandomPapers(List<QuestionItem> questions, int questionCount = 25, int paperCount = 60, string outputDirectory = "Papers")
 		{
 			for (int i = 0; i < paperCount; i++)
 			{
 				var exportWorkbook = new XSSFWorkbook();
 				var sheet1 = exportWorkbook.CreateSheet(i.ToString());
+
 				//create header
 				var headerRow = sheet1.CreateRow(0);
 				headerRow.CreateCell(0).SetCellValue("答案（请填写A、B、C、D）");
@@ -37,8 +35,11 @@ namespace QuestionPaperGenerator
 					headerRow.CreateCell(optionIndex + 3).SetCellValue("选项" + (char)('A' + optionIndex));
 				}
 
+				//randomize questions
 				var rnd = new Random();
-				var randomQuestions = questions.OrderBy(q => rnd.Next()).ToList();
+				var randomQuestions = questions.OrderBy(q => rnd.Next()).Take(questionCount).ToList();
+
+				//generate question rows
 				for (int rowIndex = 0; rowIndex < randomQuestions.Count; rowIndex++)
 				{
 					var newRow = sheet1.CreateRow(rowIndex + 1);
@@ -51,10 +52,13 @@ namespace QuestionPaperGenerator
 						newRow.CreateCell(columnIndex + 3, CellType.String).SetCellValue(randomQuestion.Options[columnIndex]);
 					}
 				}
+
+				//sheet style
 				sheet1.SetColumnHidden(1, true);
 				sheet1.CreateFreezePane(1, 1);
 				exportWorkbook.SetActiveSheet(0);
 
+				//export to file
 				Directory.CreateDirectory(outputDirectory);
 				var filePath = Path.Combine(outputDirectory, i + ".xlsx");
 				using (var fs = new FileStream(filePath, FileMode.Create))
@@ -79,12 +83,8 @@ namespace QuestionPaperGenerator
 					Answer = row.Cells[0].ToString(),
 					Id = row.Cells[1].ToString(),
 					Question = row.Cells[2].ToString(),
-					Options = new List<string>(6)
+					Options = Enumerable.Range(3, row.Cells.Count).Select(columnIndex => row.Cells[columnIndex].ToString()).ToList()
 				};
-				for (int columnIndex = 3; columnIndex < row.Cells.Count; columnIndex++)
-				{
-					questionItem.Options.Add(row.Cells[columnIndex].ToString());
-				}
 				questions.Add(questionItem);
 			}
 			return questions;
