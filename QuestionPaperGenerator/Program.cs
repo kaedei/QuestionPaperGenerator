@@ -14,7 +14,7 @@ namespace QuestionPaperGenerator
 			Console.WriteLine("Opening workbook...");
 			var questions = ParseQuestionItems();
 			Console.WriteLine("Generating papers...");
-			GenerateRandomPapers(questions, 25);
+			GenerateRandomPapers(questions, 25, 60);
 		}
 
 		private static void GenerateRandomPapers(List<QuestionItem> questions, int questionCount = 25, int paperCount = 60, string outputDirectory = "Papers")
